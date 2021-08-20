@@ -10,6 +10,7 @@ export default class Scinumber {
 
 	//convert to number
 	toNumber(): number {
+		//FIXME fix JS float error! (1.1 == 1.1000000000000001)
 		return parseFloat(this.value) * Math.pow(10, this.power);
 	}
 
@@ -49,5 +50,9 @@ export default class Scinumber {
 		const newObj = new Scinumber(value, parseInt(power));
 		newObj.normalize();
 		return newObj;
+	}
+
+	static Zero(): Scinumber {
+		return new Scinumber('0', 0);
 	}
 }
