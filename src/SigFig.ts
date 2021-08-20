@@ -38,7 +38,7 @@ export default class SigFig extends Scinumber {
 		}
 
 		//if the value can affect the rounding
-		else if (truePlace === this.power) {
+		else if (truePlace === this.power + 1) {
 
 			//look at the first figure in this.value
 			const target = parseInt(this.value.charAt(0));
@@ -66,6 +66,11 @@ export default class SigFig extends Scinumber {
 			//get the figure after true place
 			const targetNext = parseInt(nvalue.charAt(workingPlace + 1));
 
+			//if targetNext is NaN , don't round
+			if (isNaN(targetNext)) {
+				return new SigFig(this.value, this.power, this.precision);
+			}
+
 			let newValueAtTarget = 0;
 
 			//if the next figure is less than 5, round down
@@ -84,10 +89,33 @@ export default class SigFig extends Scinumber {
 			}
 
 			//replace the figure at true place with the new value
-			const newValue = nvalue.charAt(0) + '.' + nvalue.slice(1, workingPlace) + (newValueAtTarget).toString();
-			return new SigFig(newValue, this.power, this.precision);
+			const newValue = nvalue.slice(0, workingPlace) + newValueAtTarget;
+
+			//add a . in the correct place
+			const newValueWithDecimal = newValue.charAt(0) + '.' + newValue.slice(1);
+
+			//return
+			return new SigFig(newValueWithDecimal, this.power, this.precision);
 		}
 	}
 
+	// adds a sigfig to this sigfig
+	add(n: SigFig): SigFig {
 
+		//get the precision of n
+		const nPrecision = n.getPrecision();
+
+		//find the max precision of this and n (in this case, lower is *more* precise in real life)
+		const maxPrecision = Math.max(this.precision, nPrecision);
+
+		//round both sigfigs to the max precision
+		const thisRounded = this.roundTo(maxPrecision);
+		const nRounded = n.roundTo(maxPrecision);
+
+		//get value and power by adding the two sigfigs
+		const { value, power } = Scinumber.fromNumber(thisRounded.toNumber() + nRounded.toNumber());
+
+		//return the sum as a sigfig
+		return new SigFig(value, power, maxPrecision);
+	}
 }
