@@ -1,0 +1,23 @@
+{
+  "name": "sigfig",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/piman51277/sigfig.git"
+  },
+  "keywords": [],
+  "author": "piman51277",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/piman51277/sigfig/issues"
+  },
+  "homepage": "https://github.com/piman51277/sigfig#readme",
+  "dependencies": {
+    "@types/node": "^16.6.2",
+    "@typescript-eslint/eslint-plugin": "^4.29.2",
+    "@typescript-eslint/parser": "^4.29.2",
+    "eslint": "^7.32.0"
+  }
+}
