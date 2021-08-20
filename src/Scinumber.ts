@@ -31,17 +31,6 @@ export default class Scinumber {
 		this.power = power;
 	}
 
-	getPrecision(): number {
-		//if there is no ., presision is this.power
-		if (this.value.indexOf('.') === -1) {
-			return this.power;
-		} else {
-			return this.power - this.value.length + 2;
-		}
-
-	}
-
-
 	//get Scinumber from number
 	static fromNumber(number: number): Scinumber {
 		//get log base 10 of number
