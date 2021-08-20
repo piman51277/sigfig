@@ -16,6 +16,15 @@
         "@typescript-eslint"
     ],
     "rules": {
-        "semi": [ "warn","always"]
+        "semi": [
+            "warn",
+            "always"
+        ],
+        "lines-around-comment": [
+            "error",
+            {
+                "beforeLineComment": true
+            }
+        ]
     }
 }
