@@ -124,4 +124,20 @@ export default class SigFig extends Scinumber {
 		n.negate();
 		return this.add(n);
 	}
+
+	//multiples a sigfig by a sigfig
+	multiply(n: SigFig): SigFig {
+
+		//get the precision of n
+		const nPrecision = n.getPrecision();
+
+		//find the max precision of this and n (in this case, lower is *more* precise in real life)
+		const maxPrecision = Math.max(this.precision, nPrecision);
+
+		//multiply the two sigfigs
+		const {value,power} = Scinumber.fromNumber(this.toNumber() * n.toNumber());
+
+		//return the sum as a sigfig
+		return new SigFig(value, power, maxPrecision).roundTo(maxPrecision);
+	}
 }
