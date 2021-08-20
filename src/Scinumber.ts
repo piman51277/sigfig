@@ -47,6 +47,15 @@ export default class Scinumber {
 		}
 	}
 
+	//negates the Scinumber
+	negate(): void {
+		if(this.value.indexOf("-") === -1){
+			this.value = '-' + this.value;
+		}else{
+			this.value = this.value.slice(1);
+		}
+	}
+
 	//get Scinumber from number
 	static fromNumber(number: number): Scinumber {
 

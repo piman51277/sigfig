@@ -118,4 +118,10 @@ export default class SigFig extends Scinumber {
 		//return the sum as a sigfig
 		return new SigFig(value, power, maxPrecision);
 	}
+
+	// subtracts a sigfig from this sigfig (alias of add)
+	subtract(n: SigFig): SigFig {
+		n.negate();
+		return this.add(n);
+	}
 }
