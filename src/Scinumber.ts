@@ -18,6 +18,30 @@ export default class Scinumber {
 		return this.value + 'e' + this.power;
 	}
 
+	//normalize value
+	normalize(): void {
+		//parse this.value
+		const number = parseFloat(this.value);
+
+		//use Scinumber.fromNumber to get normalized Scinumber
+		const { value, power } = Scinumber.fromNumber(number);
+
+		//set 
+		this.value = value;
+		this.power = power;
+	}
+
+	getPrecision(): number {
+		//if there is no ., presision is this.power
+		if (this.value.indexOf('.') === -1) {
+			return this.power;
+		} else {
+			return this.power - this.value.length + 2;
+		}
+
+	}
+
+
 	//get Scinumber from number
 	static fromNumber(number: number): Scinumber {
 		//get log base 10 of number
@@ -33,9 +57,8 @@ export default class Scinumber {
 	//get Scinumber from string
 	static fromString(string: string): Scinumber {
 		const [value, power] = string.split('e');
-		return new Scinumber(value, parseInt(power));
+		const newObj = new Scinumber(value, parseInt(power));
+		newObj.normalize();
+		return newObj;
 	}
 }
-
-
-console.log(Scinumber.fromNumber(0.00000000001).toString());
