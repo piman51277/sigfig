@@ -32,6 +32,17 @@ export default class Scinumber {
 		this.power = power;
 	}
 
+	//gets the max precision
+	getPrecision(): number {
+		//if there is no ., presision is this.power
+		if (this.value.indexOf('.') === -1) {
+			return this.power;
+		} else {
+			//return the power - the lowest decimal place, and add 2 to make up for decimal
+			return this.power - this.value.length + Math.max(0, this.value.indexOf('.') + 1);
+		}
+	}
+
 	//get Scinumber from number
 	static fromNumber(number: number): Scinumber {
 		// if number is 0
@@ -69,4 +80,6 @@ export default class Scinumber {
 	static Zero(): Scinumber {
 		return new Scinumber('0', 0);
 	}
+
+
 }

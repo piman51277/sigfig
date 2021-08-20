@@ -1,40 +1,49 @@
 import Scinumber from './Scinumber';
 
 //class for handling sigfigs
-export default class SigFig {
-	//gets the max precision of a Scinumber
-	static getPrecision(n: Scinumber): number {
-		//if there is no ., presision is this.power
-		if (n.value.indexOf('.') === -1) {
-			return n.power;
+export default class SigFig extends Scinumber {
+	precision: number
+	constructor(value: string, power?: number, precision?: number) {
+		super(value, power);
+		super.normalize();
+		this.precision = precision || this.getPrecision();
+	}
+
+	//if this.precision is defined, return it. Otherwise, act as a normal Scinumber
+	getPrecision(): number {
+		if (this.precision) {
+			return this.precision;
 		} else {
-			//return the power - the lowest decimal place, and add 2 to make up for decimal
-			return n.power - n.value.length + 2;
+			return super.getPrecision();
 		}
 	}
 
-	static roundTo(n: Scinumber, place: number): Scinumber {
-		//get the true place, offsetting for the power
-		const truePlace = place - n.power;
+	//rounds to 10^place and returns a Scinumber
+	roundTo(place: number): SigFig {
+		//FIXME for now, the outputs of this function have the same precision as the input. This may not be the case.
+		//TODO find the corrrect behavior of precision for rounding
 
-		//if true place is referencing a value that cannot affect rounding, leave Scinumber alone
-		if (truePlace * -1 > n.value.length - 3) {
-			return new Scinumber(n.value, n.power);
+		//get the true place, offsetting for the power
+		const truePlace = place - this.power;
+
+		//if true place is referencing a value that cannot affect rounding, leave SigFig alone
+		if (truePlace * -1 > this.value.length - (Math.max(0, this.value.indexOf('.')) + 1)) {
+			return new SigFig(this.value, this.power, this.precision);
 		}
 		//if the value cannot affect the rounding at all, return 0
-		else if (truePlace > n.power + 1) {
-			return new Scinumber('0', n.power + 1);
+		else if (truePlace > this.power + 1) {
+			return new SigFig('0', 0, this.precision);
 		}
 		//if the value can affect the rounding
-		else if (truePlace === n.power) {
-			//look at the first figure in n.value
-			const target = parseInt(n.value.charAt(0));
+		else if (truePlace === this.power) {
+			//look at the first figure in this.value
+			const target = parseInt(this.value.charAt(0));
 
 			// use sig fig rounding
 			if (target <= 5) {
-				return new Scinumber('0', n.power + 1);
+				return new SigFig('0', this.power + 1, this.precision);
 			} else if (target > 5) {
-				return new Scinumber('1', n.power + 1);
+				return new SigFig('1', this.power + 1, this.precision);
 			}
 		}
 		//every other case
@@ -43,7 +52,7 @@ export default class SigFig {
 			const workingPlace = truePlace * -1;
 
 			//get a version of nvalue with no decimal
-			const nvalue = n.value.replace('.', '');
+			const nvalue = this.value.replace('.', '');
 
 			//get the figure at true place
 			const target = parseInt(nvalue.charAt(workingPlace));
@@ -66,7 +75,9 @@ export default class SigFig {
 			}
 
 			const newValue = nvalue.charAt(0) + '.' + nvalue.slice(1, workingPlace) + (newValueAtTarget).toString();
-			return new Scinumber(newValue, n.power);
+			return new SigFig(newValue, this.power, this.precision);
 		}
 	}
+
+
 }
