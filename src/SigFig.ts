@@ -97,4 +97,11 @@ export default class SigFig {
 	roundSignificant(place: number): SigFig {
 		return new SigFig(this.value.slice(0, place), this.power, this.negative);
 	}
+
+	//reverses the state of this.negative
+	negate(): SigFig {
+		return new SigFig(this.value, this.power, !this.negative);
+	}
+
+	
 }
