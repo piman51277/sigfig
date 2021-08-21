@@ -163,5 +163,9 @@ export default class SigFig {
 		return sumSigFig.roundDecimal(maxDecimalPrecision);
 
 	}
-
+	
+	//subtracts another SigFig from this SigFig
+	subtract(other: SigFig): SigFig {
+		return this.add(other.negate());
+	}
 }
