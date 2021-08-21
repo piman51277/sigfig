@@ -11,25 +11,37 @@ export default class SigFig {
 		this.negative = negative;
 	}
 
+	//returns the number as a string
+	toString(): string {
+		return `${this.value[0]}.${this.value.slice(1)}e${this.power}`;
+	}
+
+	//returns the number as a number
+	toNumber(): number {
+		return parseInt(this.value) * (this.negative ? -1 : 1) * Math.pow(10,1-this.value.length + this.power);
+	}
+
 	//returns the decimal precision of the number as a power of 10
 	getDecimalPrecision(): number {
-		return this.power - this.value.length + 1
+		return this.power - this.value.length + 1;
 	}
 
 	//returns the number of significant figures in the number
 	getSignificantPrecision(): number {
-		return this.value.length
+		return this.value.length;
 	}
 
 	//rounds the number to a specified decimal precision
-	roundDecimal(place): SigFig {
+	roundDecimal(place: number): SigFig {
+
 		//get the index to round to
-		let targetIndex = place + this.power;
+		const targetIndex = place + this.power;
 
 		//if the index is less than negative 1, just return 0 
 		if (targetIndex <= -1) {
 			return new SigFig("0", place, false);
 		}
+
 		//if the index is negative 1, check the number in position 0
 		else if (targetIndex == -1) {
 			const firstPosValue = parseInt(this.value[0]);
@@ -38,6 +50,7 @@ export default class SigFig {
 			if (firstPosValue > 5) {
 				return new SigFig("1", place, false);
 			}
+
 			//if the first position is under or equal to 5, return 0
 			else {
 				return new SigFig("0", place, false);
@@ -55,7 +68,7 @@ export default class SigFig {
 			const nextValue = parseInt(this.value[targetIndex + 1]);
 
 			//slice this.value to targetIndex
-			let newValue = parseInt(this.value.slice(0, targetIndex+1));
+			let newValue = parseInt(this.value.slice(0, targetIndex + 1));
 
 			//if the next value is greater than 5, round up
 			if (nextValue > 5) {
@@ -64,11 +77,12 @@ export default class SigFig {
 
 			//if the next value is less than 5, round down
 			else if (nextValue < 5) {
+
 				//do nothing
 			}
 
 			//if the next value is 5, round so the target is even
-			else { 	
+			else {
 				if (targetValue % 2 != 0) {
 					newValue++;
 				}
@@ -79,6 +93,3 @@ export default class SigFig {
 		}
 	}
 }
-
-const tmp = new SigFig("12345", 2, false);
-console.log(tmp.roundDecimal(0))
