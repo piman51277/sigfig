@@ -18,7 +18,7 @@ export default class SigFig {
 
 	//returns the number as a number
 	toNumber(): number {
-		return parseInt(this.value) * (this.negative ? -1 : 1) * Math.pow(10,1-this.value.length + this.power);
+		return parseInt(this.value) * (this.negative ? -1 : 1) * Math.pow(10, 1 - this.value.length + this.power);
 	}
 
 	//returns the decimal precision of the number as a power of 10
@@ -35,7 +35,7 @@ export default class SigFig {
 	roundDecimal(place: number): SigFig {
 
 		//get the index to round to
-		const targetIndex = place + this.power;
+		const targetIndex = place * -1 + this.power;
 
 		//if the index is less than negative 1, just return 0 
 		if (targetIndex <= -1) {
@@ -91,5 +91,10 @@ export default class SigFig {
 			//output the sig fig
 			return new SigFig(newValue.toString(), this.power, this.negative);
 		}
+	}
+
+	//rounds the number to a specified significant precision
+	roundSignificant(place: number): SigFig {
+		return new SigFig(this.value.slice(0, place), this.power, this.negative);
 	}
 }
