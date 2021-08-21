@@ -9,6 +9,12 @@
    - `false`
  
 ## Instance Methods
+ - `toString()`
+   - returns the number in string form
+   - `1.2345e2`
+ - `toNumber()`
+   - returns the number in number form
+   - `123.45`
  - `getDecimalPrecision()`
    - returns the decimal precision of the number as a power of 10. 
    - `1.2345e2` -> `-2`  
