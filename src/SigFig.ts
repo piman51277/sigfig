@@ -103,5 +103,65 @@ export default class SigFig {
 		return new SigFig(this.value, this.power, !this.negative);
 	}
 
-	
+	//adds another SigFig to this SigFig
+	add(other: SigFig): SigFig {
+		
+		//NOTE: In this function, we deliberatley try to keep add math operation strictly between integers.
+		//	  This is to avoid issues with floating point math.
+
+		//get the values of this and other
+		let thisValue = parseInt(this.value);
+		let otherValue = parseInt(other.value);
+
+		//negate other and this if nesseary
+		if (this.negative) {
+			thisValue *= -1;
+		}
+
+		if (other.negative) {
+			otherValue *= -1;
+		}
+
+		//if this has higher power than other
+		if (this.power > other.power) {
+			thisValue *= Math.pow(10, (this.power - other.power));
+		}
+
+		//else, visa versa
+		else if(this.power < other.power){
+			otherValue *= Math.pow(10, (other.power - this.power));
+		}
+
+		//if this has a shorter value length, compensate
+		if (this.value.length < other.value.length) {
+			thisValue *= Math.pow(10, (other.value.length - this.value.length));
+		}
+
+		//else, visa versa
+		else if (this.value.length > other.value.length) {
+			otherValue *= Math.pow(10, (this.value.length - other.value.length));
+		}
+
+
+		//get the sum
+		let sum = thisValue + otherValue;
+
+		//if the sum is negative, make it positive
+		let isNegative = false;
+		if (sum < 0) {
+			isNegative = true;
+			sum *= -1;
+		}
+
+		//get the maximum decimal precision of both addends
+		const maxDecimalPrecision = Math.max(this.getDecimalPrecision(), other.getDecimalPrecision());
+
+		//get sum as SigFig
+		const sumSigFig = new SigFig(sum.toString(), Math.max(this.power, other.power), isNegative);
+
+		//return rounded sum
+		return sumSigFig.roundDecimal(maxDecimalPrecision);
+
+	}
+
 }
