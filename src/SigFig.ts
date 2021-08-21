@@ -95,7 +95,46 @@ export default class SigFig {
 
 	//rounds the number to a specified significant precision
 	roundSignificant(place: number): SigFig {
-		return new SigFig(this.value.slice(0, place), this.power, this.negative);
+		
+		//check if the place is negative
+		if (place < 0) {
+			throw new Error("Place must be positive");
+		}
+
+		//check if the place is bigger than this.value.length
+		else if (place >= this.value.length) {
+			return new SigFig(this.value, this.power, this.negative);
+		}
+
+		//all is well, start rounding
+		else {
+			const targetValue = parseInt(this.value[place -1]);
+			const nextValue = parseInt(this.value[place ]);
+
+			//slice this.value to targetIndex
+			let newValue = parseInt(this.value.slice(0, place ));
+
+			//if the next value is greater than 5, round up
+			if (nextValue > 5) {
+				newValue++;
+			}
+
+			//if the next value is less than 5, round down
+			else if (nextValue < 5) {
+
+				//do nothing
+			}
+
+			//if the next value is 5, round so the target is even
+			else {
+				if (targetValue % 2 != 0) {
+					newValue++;
+				}
+			}
+
+			//output the sig fig
+			return new SigFig(newValue.toString(), this.power, this.negative);
+		}
 	}
 
 	//reverses the state of this.negative
