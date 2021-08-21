@@ -95,7 +95,7 @@ export default class SigFig {
 
 	//rounds the number to a specified significant precision
 	roundSignificant(place: number): SigFig {
-		
+
 		//check if the place is negative
 		if (place < 0) {
 			throw new Error("Place must be positive");
@@ -108,11 +108,11 @@ export default class SigFig {
 
 		//all is well, start rounding
 		else {
-			const targetValue = parseInt(this.value[place -1]);
-			const nextValue = parseInt(this.value[place ]);
+			const targetValue = parseInt(this.value[place - 1]);
+			const nextValue = parseInt(this.value[place]);
 
 			//slice this.value to targetIndex
-			let newValue = parseInt(this.value.slice(0, place ));
+			let newValue = parseInt(this.value.slice(0, place));
 
 			//if the next value is greater than 5, round up
 			if (nextValue > 5) {
@@ -152,7 +152,7 @@ export default class SigFig {
 		let thisValue = parseInt(this.value);
 		let otherValue = parseInt(other.value);
 
-		//negate other and this if nesseary
+		//negate other and this if nessessary
 		if (this.negative) {
 			thisValue *= -1;
 		}
@@ -208,6 +208,61 @@ export default class SigFig {
 
 	//subtracts another SigFig from this SigFig
 	subtract(other: SigFig): SigFig {
+
+		//simply negate the other and add
 		return this.add(other.negate());
+	}
+
+	//multiplies this SigFig by another SigFig
+	multiply(other: SigFig): SigFig {
+
+
+		//NOTE: In this function, we deliberatley try to keep add math operation strictly between integers.
+		//	  This is to avoid issues with floating point math.
+
+		//get the values of this and other
+		let thisValue = parseInt(this.value);
+		let otherValue = parseInt(other.value);
+
+		//negate other and this if nessessary
+		if (this.negative) {
+			thisValue *= -1;
+		}
+
+		if (other.negative) {
+			otherValue *= -1;
+		}
+
+		//if this has higher power than other
+		if (this.power > other.power) {
+			thisValue *= Math.pow(10, (this.power - other.power));
+		}
+
+		//else, visa versa
+		else if (this.power < other.power) {
+			otherValue *= Math.pow(10, (other.power - this.power));
+		}
+
+		//get the product
+		let product = thisValue * otherValue;
+
+		//displacement math
+		const displacement = Math.floor(Math.log10(product)) - Math.max(Math.floor(Math.log10(thisValue)), Math.floor(Math.log10(otherValue)));
+
+		//if the product is negative, make it positive
+		let isNegative = false;
+		if (product < 0) {
+			isNegative = true;
+			product *= -1;
+		}
+
+		//get the minimum Significant precision of both addends
+		const maxSignificantPrecision = Math.min(this.getSignificantPrecision(), other.getSignificantPrecision());
+
+		//get product as SigFig
+		const productSigFig = new SigFig(product.toString(), this.power + other.power + displacement, isNegative);
+
+		//return rounded product
+		return productSigFig.roundSignificant(maxSignificantPrecision);
 	}
 }
