@@ -105,7 +105,7 @@ export default class SigFig {
 
 	//adds another SigFig to this SigFig
 	add(other: SigFig): SigFig {
-		
+
 		//NOTE: In this function, we deliberatley try to keep add math operation strictly between integers.
 		//	  This is to avoid issues with floating point math.
 
@@ -128,7 +128,7 @@ export default class SigFig {
 		}
 
 		//else, visa versa
-		else if(this.power < other.power){
+		else if (this.power < other.power) {
 			otherValue *= Math.pow(10, (other.power - this.power));
 		}
 
@@ -146,6 +146,9 @@ export default class SigFig {
 		//get the sum
 		let sum = thisValue + otherValue;
 
+		//displacement math
+		const displacement = Math.floor(Math.log10(sum)) - Math.max(Math.floor(Math.log10(thisValue)), Math.floor(Math.log10(otherValue)));
+
 		//if the sum is negative, make it positive
 		let isNegative = false;
 		if (sum < 0) {
@@ -157,13 +160,13 @@ export default class SigFig {
 		const maxDecimalPrecision = Math.max(this.getDecimalPrecision(), other.getDecimalPrecision());
 
 		//get sum as SigFig
-		const sumSigFig = new SigFig(sum.toString(), Math.max(this.power, other.power), isNegative);
+		const sumSigFig = new SigFig(sum.toString(), Math.max(this.power, other.power) + displacement, isNegative);
 
 		//return rounded sum
 		return sumSigFig.roundDecimal(maxDecimalPrecision);
 
 	}
-	
+
 	//subtracts another SigFig from this SigFig
 	subtract(other: SigFig): SigFig {
 		return this.add(other.negate());
