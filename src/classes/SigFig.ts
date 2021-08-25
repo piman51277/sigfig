@@ -13,7 +13,7 @@ export default class SigFig {
 
 	//returns the number as a string
 	toString(): string {
-		return `${this.value[0]}.${this.value.slice(1)}e${this.power}`;
+		return `${this.negative?"-":""}${this.value[0]}.${this.value.slice(1)}e${this.power}`;
 	}
 
 	//returns the number as a number
@@ -208,7 +208,10 @@ export default class SigFig {
 		return result.roundDecimal(maxDecimalPrecision);
 	}
 
-	
+	//negates a number and adds it
+	subtract(other: SigFig): SigFig {
+		return this.add(other.negate());
+	}
 
 	static fromString(string:string):SigFig {
 		
