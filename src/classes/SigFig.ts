@@ -141,6 +141,11 @@ export default class SigFig {
 		}
 	}
 
+	//reverses the state of this.negative
+	negate(): SigFig {
+		return new SigFig(this.value, this.power, !this.negative);
+	}
+
 	//adds a number to this number
 	add(other: SigFig): SigFig {
 
@@ -202,6 +207,8 @@ export default class SigFig {
 		//round to the max decimal precision
 		return result.roundDecimal(maxDecimalPrecision);
 	}
+
+	
 
 	static fromString(string:string):SigFig {
 		
