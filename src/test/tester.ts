@@ -38,6 +38,7 @@ for (const method in tests) {
 
         //check if the result is correct
         if (actual.toString() !== expected) {
+            console.log(`Failed on ${input0} ${input1}. Expected ${expected}, got ${actual}`);
             fails++;
         }
     }
