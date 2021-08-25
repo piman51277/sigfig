@@ -22,7 +22,7 @@ export default class SigFig {
 	}
 
 	//returns the decimal precision of the number as a power of 10
-	getDecimalPrecision(): number {
+	getDecimalPrecision(): number {		
 		return this.power - this.value.length + 1;
 	}
 
@@ -64,7 +64,6 @@ export default class SigFig {
 
 		//all other cases: the index is referencing a valid value
 		else {
-			const targetValue = parseInt(this.value[targetIndex]);
 			const nextValue = parseInt(this.value[targetIndex + 1]);
 
 			//slice this.value to targetIndex
@@ -81,9 +80,12 @@ export default class SigFig {
 				//do nothing
 			}
 
-			//if the next value is 5, round so the target is even
+			//if the next value is 5, look at the number after the 5
 			else {
-				if (targetValue % 2 != 0) {
+				const valueAfterFive = parseInt(this.value[targetIndex + 2]) || 0;
+
+				//if the value after 5 is odd, round up
+				if (valueAfterFive % 2 != 0) {
 					newValue++;
 				}
 			}
@@ -108,7 +110,6 @@ export default class SigFig {
 
 		//all is well, start rounding
 		else {
-			const targetValue = parseInt(this.value[place - 1]);
 			const nextValue = parseInt(this.value[place]);
 
 			//slice this.value to targetIndex
@@ -127,7 +128,10 @@ export default class SigFig {
 
 			//if the next value is 5, round so the target is even
 			else {
-				if (targetValue % 2 != 0) {
+				const valueAfterFive = parseInt(this.value[place + 2]) || 0;
+
+				//if the value after 5 is odd, round up
+				if (valueAfterFive % 2 != 0) {
 					newValue++;
 				}
 			}
@@ -137,56 +141,39 @@ export default class SigFig {
 		}
 	}
 
-	//reverses the state of this.negative
-	negate(): SigFig {
-		return new SigFig(this.value, this.power, !this.negative);
-	}
-
-	//adds another SigFig to this SigFig
+	//adds a number to this number
 	add(other: SigFig): SigFig {
 
-		//NOTE: In this function, we deliberatley try to keep add math operation strictly between integers.
-		//	  This is to avoid issues with floating point math.
-
-		//get the values of this and other
+		//convert .value to a number
 		let thisValue = parseInt(this.value);
 		let otherValue = parseInt(other.value);
 
-		//negate other and this if nessessary
+		//apply negatives to both this and other
 		if (this.negative) {
 			thisValue *= -1;
 		}
-
 		if (other.negative) {
 			otherValue *= -1;
 		}
 
-		//if this has higher power than other
+		//Make up for power difference
 		if (this.power > other.power) {
-			thisValue *= Math.pow(10, (this.power - other.power));
+			thisValue *= Math.pow(10, this.power - other.power);
 		}
-
-		//else, visa versa
 		else if (this.power < other.power) {
-			otherValue *= Math.pow(10, (other.power - this.power));
+			otherValue *= Math.pow(10, other.power - this.power);
 		}
 
-		//if this has a shorter value length, compensate
-		if (this.value.length < other.value.length) {
-			thisValue *= Math.pow(10, (other.value.length - this.value.length));
+		//make up for length difference
+		if (this.value.length > other.value.length) {
+			otherValue *= Math.pow(10, this.value.length - other.value.length);
+		}
+		else if (this.value.length < other.value.length) {
+			thisValue *= Math.pow(10, other.value.length - this.value.length);
 		}
 
-		//else, visa versa
-		else if (this.value.length > other.value.length) {
-			otherValue *= Math.pow(10, (this.value.length - other.value.length));
-		}
-
-
-		//get the sum
+		//add the numbers
 		let sum = thisValue + otherValue;
-
-		//displacement math
-		const displacement = Math.floor(Math.log10(sum)) - Math.max(Math.floor(Math.log10(thisValue)), Math.floor(Math.log10(otherValue)));
 
 		//if the sum is negative, make it positive
 		let isNegative = false;
@@ -195,74 +182,39 @@ export default class SigFig {
 			sum *= -1;
 		}
 
-		//get the maximum decimal precision of both addends
-		const maxDecimalPrecision = Math.max(this.getDecimalPrecision(), other.getDecimalPrecision());
+		//get length pf addends
+		const thisLength = Math.floor(Math.log10(Math.abs(thisValue))) + 1; 
+		const otherLength = Math.floor(Math.log10(Math.abs(otherValue))) + 1;
 
-		//get sum as SigFig
-		const sumSigFig = new SigFig(sum.toString(), Math.max(this.power, other.power) + displacement, isNegative);
+		//compensate for additive under/overflow
+		const maxLength = Math.max(thisLength, otherLength);
+		const resultLength = Math.floor(Math.log10(Math.abs(sum))) + 1;
 
-		//return rounded sum
-		return sumSigFig.roundDecimal(maxDecimalPrecision);
+		//compute the boost
+		const boost = resultLength - maxLength;
 
+		//convert to SigFig object
+		const result = new SigFig(sum.toString(), Math.max(this.power,other.power) + boost, isNegative);
+
+		//get worst decimal precision and restrict to 0 and below
+		const maxDecimalPrecision = Math.min(Math.max(this.getDecimalPrecision(), other.getDecimalPrecision()),0);
+
+		//round to the max decimal precision
+		return result.roundDecimal(maxDecimalPrecision);
 	}
 
-	//subtracts another SigFig from this SigFig
-	subtract(other: SigFig): SigFig {
+	static fromString(string:string):SigFig {
+		
+		//check if string is negative or not
+		const isNegative = string[0] == "-";
 
-		//simply negate the other and add
-		return this.add(other.negate());
-	}
+		//remove the negative sign and decimal
+		string = string.replace(/^-|\./g, "");
 
-	//multiplies this SigFig by another SigFig
-	multiply(other: SigFig): SigFig {
+		//parse value and power
+		const [value,power] = string.split("e");
 
-
-		//NOTE: In this function, we deliberatley try to keep add math operation strictly between integers.
-		//	  This is to avoid issues with floating point math.
-
-		//get the values of this and other
-		let thisValue = parseInt(this.value);
-		let otherValue = parseInt(other.value);
-
-		//negate other and this if nessessary
-		if (this.negative) {
-			thisValue *= -1;
-		}
-
-		if (other.negative) {
-			otherValue *= -1;
-		}
-
-		//if this has higher power than other
-		if (this.power > other.power) {
-			thisValue *= Math.pow(10, (this.power - other.power));
-		}
-
-		//else, visa versa
-		else if (this.power < other.power) {
-			otherValue *= Math.pow(10, (other.power - this.power));
-		}
-
-		//get the product
-		let product = thisValue * otherValue;
-
-		//displacement math
-		const displacement = Math.floor(Math.log10(product)) - Math.max(Math.floor(Math.log10(thisValue)), Math.floor(Math.log10(otherValue)));
-
-		//if the product is negative, make it positive
-		let isNegative = false;
-		if (product < 0) {
-			isNegative = true;
-			product *= -1;
-		}
-
-		//get the minimum Significant precision of both addends
-		const maxSignificantPrecision = Math.min(this.getSignificantPrecision(), other.getSignificantPrecision());
-
-		//get product as SigFig
-		const productSigFig = new SigFig(product.toString(), this.power + other.power + displacement, isNegative);
-
-		//return rounded product
-		return productSigFig.roundSignificant(maxSignificantPrecision);
+		//return sigFig
+		return new SigFig(value, parseInt(power), isNegative);
 	}
 }
