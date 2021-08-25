@@ -13,7 +13,7 @@ export default class SigFig {
 
 	//returns the number as a string
 	toString(): string {
-		return `${this.negative?"-":""}${this.value[0]}.${this.value.slice(1)}e${this.power}`;
+		return `${this.negative ? "-" : ""}${this.value[0]}.${this.value.slice(1)}e${this.power}`;
 	}
 
 	//returns the number as a number
@@ -22,7 +22,7 @@ export default class SigFig {
 	}
 
 	//returns the decimal precision of the number as a power of 10
-	getDecimalPrecision(): number {		
+	getDecimalPrecision(): number {
 		return this.power - this.value.length + 1;
 	}
 
@@ -85,7 +85,7 @@ export default class SigFig {
 				const valueAfterFive = parseInt(this.value[targetIndex + 2]) || 0;
 
 				//if the value after 5 is odd, round up
-				if (valueAfterFive % 2 != 0) {
+				if (valueAfterFive % 2 != 0 || valueAfterFive == 0) {
 					newValue++;
 				}
 			}
@@ -131,7 +131,7 @@ export default class SigFig {
 				const valueAfterFive = parseInt(this.value[place + 2]) || 0;
 
 				//if the value after 5 is odd, round up
-				if (valueAfterFive % 2 != 0) {
+				if (valueAfterFive % 2 != 0 || valueAfterFive == 0) {
 					newValue++;
 				}
 			}
@@ -187,8 +187,8 @@ export default class SigFig {
 			sum *= -1;
 		}
 
-		//get length pf addends
-		const thisLength = Math.floor(Math.log10(Math.abs(thisValue))) + 1; 
+		//get length of addends
+		const thisLength = Math.floor(Math.log10(Math.abs(thisValue))) + 1;
 		const otherLength = Math.floor(Math.log10(Math.abs(otherValue))) + 1;
 
 		//compensate for additive under/overflow
@@ -199,10 +199,10 @@ export default class SigFig {
 		const boost = resultLength - maxLength;
 
 		//convert to SigFig object
-		const result = new SigFig(sum.toString(), Math.max(this.power,other.power) + boost, isNegative);
+		const result = new SigFig(sum.toString(), Math.max(this.power, other.power) + boost, isNegative);
 
 		//get worst decimal precision and restrict to 0 and below
-		const maxDecimalPrecision = Math.min(Math.max(this.getDecimalPrecision(), other.getDecimalPrecision()),0);
+		const maxDecimalPrecision = Math.min(Math.max(this.getDecimalPrecision(), other.getDecimalPrecision()), 0);
 
 		//round to the max decimal precision
 		return result.roundDecimal(maxDecimalPrecision);
@@ -213,8 +213,60 @@ export default class SigFig {
 		return this.add(other.negate());
 	}
 
-	static fromString(string:string):SigFig {
-		
+	//multiplies a number by this number
+	multiply(other: SigFig): SigFig{
+
+		//convert .value to a number
+		let thisValue = parseInt(this.value);
+		let otherValue = parseInt(other.value);
+
+		//apply negatives to both this and other
+		if (this.negative) {
+			thisValue *= -1;
+		}
+		if (other.negative) {
+			otherValue *= -1;
+		}
+
+		//Make up for power difference
+		if (this.power > other.power) {
+			thisValue *= Math.pow(10, this.power - other.power);
+		}
+		else if (this.power < other.power) {
+			otherValue *= Math.pow(10, other.power - this.power);
+		}
+
+		//make up for length difference
+		if (this.value.length > other.value.length) {
+			otherValue *= Math.pow(10, this.value.length - other.value.length);
+		}
+		else if (this.value.length < other.value.length) {
+			thisValue *= Math.pow(10, other.value.length - this.value.length);
+		}
+
+		//get product
+		let product = thisValue * otherValue;
+
+		//if the product is negative, make it positive
+		let isNegative = false;
+		if (product < 0) {
+			isNegative = true;
+			product *= -1;
+		}
+
+		//convert to sigFig object
+		const result = new SigFig(product.toString(), this.power + other.power + 1, isNegative);
+
+		//get worst significant precision
+		const minSigPrecision = Math.min(this.getSignificantPrecision(), other.getSignificantPrecision());
+
+		//round to the worst significant precision
+		return result.roundSignificant(minSigPrecision);
+	}
+
+	//generates a sigFig from a string
+	static fromString(string: string): SigFig {
+
 		//check if string is negative or not
 		const isNegative = string[0] == "-";
 
@@ -222,7 +274,7 @@ export default class SigFig {
 		string = string.replace(/^-|\./g, "");
 
 		//parse value and power
-		const [value,power] = string.split("e");
+		const [value, power] = string.split("e");
 
 		//return sigFig
 		return new SigFig(value, parseInt(power), isNegative);
