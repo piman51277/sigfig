@@ -1,12 +1,17 @@
 {
-  "name": "sigfig",
+  "name": "@piman51277/sigfig",
   "version": "1.0.0",
   "description": "A small project to compute significant figures",
-  "main": "src/classes/SigFig.ts",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/piman51277/sigfig.git"
   },
+  "scripts": {
+    "build": "tsc"
+  },
+  "prepublish": "tsc",
   "keywords": [],
   "author": "piman51277",
   "license": "ISC",
@@ -14,14 +19,11 @@
     "url": "https://github.com/piman51277/sigfig/issues"
   },
   "homepage": "https://github.com/piman51277/sigfig#readme",
-  "dependencies": {
+  "devDependencies": {
     "@types/node": "^16.6.2",
     "@typescript-eslint/eslint-plugin": "^4.29.2",
     "@typescript-eslint/parser": "^4.29.2",
     "eslint": "^7.32.0",
     "typescript": "^4.3.5"
-  },
-  "devDependencies": {
-    "benchmark": "^2.1.4"
   }
 }

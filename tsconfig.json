@@ -7,7 +7,7 @@
 		],
 		"strict": false,
 		"declaration": true,
-		"outDir": "out",
+		"outDir": "dist",
 		"sourceMap": true,
 		"esModuleInterop": true,
 	},
