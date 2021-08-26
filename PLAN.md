@@ -39,8 +39,8 @@
    - divides the current `SigFig` with another `SigFig`
 
 ## Static Methods
- - `fromNumber(number)`
-   - returns a `SigFig` instance with the value of number provided 
+ - `fromNumber(number,significant?)`
+   - returns a `SigFig` instance with the value of number provided. Optionally, restrict the number of sig figs recorded.
    - e.g. `123.45`
  - `fromString(string)`
    - returns a `SigFig` instance with the value of the string provided

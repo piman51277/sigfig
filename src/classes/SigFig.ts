@@ -279,4 +279,30 @@ export default class SigFig {
 		//return sigFig
 		return new SigFig(value, parseInt(power), isNegative);
 	}
+
+
+	static fromNumber(number: number,significant = Infinity): SigFig {
+
+		//convert number to string
+		let string = number.toString();
+		
+		//check if number is negative or not
+		const isNegative = string[0] == "-";
+		string = string.replace(/^-|\./g, "");
+
+		//get power
+		let power = Math.floor(Math.log10(Math.abs(number)));
+
+		//remove leading zeros
+		while (string[0] == "0") {
+			string = string.substr(1);
+			power--;
+		}
+
+		//cut off based on significant
+		string = string.slice(0,significant);
+
+		//return sigFig
+		return new SigFig(string, power, isNegative);
+	}
 }
