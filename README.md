@@ -1,3 +1,7 @@
+# SigFig
+A small project to calculate significant figures   
+All calculations are done through the `SigFig` class, documented below.
+
 # SigFig Class
  
 ## Properties
