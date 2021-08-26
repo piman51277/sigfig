@@ -2,6 +2,26 @@
 A small project to calculate significant figures   
 All calculations are done through the `SigFig` class, documented below.
 
+# Example
+```
+const sf0 = SigFig.fromNumber(123.45); // convert 1.2345e2 (123.45)
+
+sf0.toNumber(); // 123.45
+sf0.toString(); // 1.2345e2
+
+sf0.getDecimalPrecision(); // -2
+sf0.getSignificantPrecision(); // 5
+
+sf0.roundDecimal(-1).toNumber(); // 123.5
+sf0.roundSignificant(3).toNumber(); // 123
+
+const sf1 = new SigFig("123456", 3, false); // convert 1.23456e3 (1234.56)
+
+sf0.add(sf1).toNumber(); // 1358.01
+sf0.subtract(sf1).toNumber(); // -1111.11
+sf0.multiply(sf1).toNumber(); // 1524100
+sf0.divide(sf1).toNumber(); // 0.099995
+```
 # SigFig Class
  
 ## Properties
@@ -49,4 +69,3 @@ All calculations are done through the `SigFig` class, documented below.
  - `fromString(string)`
    - returns a `SigFig` instance with the value of the string provided
    - e.g. `1.2345e2`
-  
