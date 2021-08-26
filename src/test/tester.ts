@@ -6,19 +6,21 @@ import { testSet } from './types/testSet';
 const sets = fs.readdirSync('./tests');
 
 //import every file in sets
-const tests:{
+const tests: {
     [key: string]: testSet
 } = {};
 
 //loop through every file in ./sets
 for (const set of sets) {
-    const fileContents = fs.readFileSync(`./tests/${set}`, 'utf8');
+
+    //replace line breaks with tripple commas to support all platforms
+    const fileContents = fs.readFileSync(`./tests/${set}`, 'utf8').replace(/(\r)?\n/g,',,,');
 
     //parse the file contents
-    const [method,...testEntries] = fileContents.split('\n');
+    const [method, ...testEntries] = fileContents.split(',,,');
 
     //create a test object for each test
-    tests[method] = testEntries.map(n=>n.split(','));
+    tests[method] = testEntries.map(n => n.split(','));
 }
 
 //for each test, run the test
@@ -27,8 +29,8 @@ for (const method in tests) {
 
     //run the test
     let fails = 0;
-    for(const [input0,input1,expected] of tests[method]) {
-        
+    for (const [input0, input1, expected] of tests[method]) {
+
         //create SigFig objects
         const sf0 = SigFig.fromString(input0);
         const sf1 = SigFig.fromString(input1);
@@ -44,7 +46,7 @@ for (const method in tests) {
     }
 
     //print the result
-    if(fails !== 0){
+    if (fails !== 0) {
         console.log(`FAILED: ${fails}/${tests[method].length} tests failed.`);
     }
     else {
