@@ -264,6 +264,25 @@ export default class SigFig {
 		return result.roundSignificant(minSigPrecision);
 	}
 
+	//divides this number by a number
+	divide(other: SigFig): SigFig {
+	
+		//This is clearly not the best solution out there, but this was the best way I could think of without an overley complicated solution
+		//I'm sure there is a better way, but this works for now
+
+		//get numerical values of both
+		const thisValue = this.toNumber();
+		const otherValue = other.toNumber();
+
+		//get the quotient
+		const quotient = thisValue / otherValue;
+	
+		//get the least number of sig figs among the two
+		const minSigPrecision = Math.min(this.getSignificantPrecision(), other.getSignificantPrecision());
+	
+		return SigFig.fromNumber(quotient, minSigPrecision);
+	}
+
 	//generates a sigFig from a string
 	static fromString(string: string): SigFig {
 
@@ -291,7 +310,7 @@ export default class SigFig {
 		string = string.replace(/^-|\./g, "");
 
 		//get power
-		let power = Math.floor(Math.log10(Math.abs(number)));
+		let power = number > 1 ? Math.floor(Math.log10(Math.abs(number))): 0;
 
 		//remove leading zeros
 		while (string[0] == "0") {
@@ -299,10 +318,15 @@ export default class SigFig {
 			power--;
 		}
 
-		//cut off based on significant
-		string = string.slice(0,significant);
-
-		//return sigFig
-		return new SigFig(string, power, isNegative);
+		//convert to sigFig
+		const sf = new SigFig(string, power, isNegative);
+	
+		//if significant is not Infinity, round to the specified number of sig figs
+		if (significant != Infinity) {
+			return sf.roundSignificant(significant);
+		}
+		else {
+			return sf;
+		}
 	}
 }
