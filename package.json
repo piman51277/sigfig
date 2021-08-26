@@ -1,8 +1,8 @@
 {
   "name": "sigfig",
   "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "description": "A small project to compute significant figures",
+  "main": "src/classes/SigFig.ts",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/piman51277/sigfig.git"
